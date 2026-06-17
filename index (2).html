@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>auto_mate_it — the machine that posts so you don't have to</title>
+<meta name="description" content="AI tools & automation for founders who'd rather build than grind. Get the weekly drop." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --ink:#14161F;
+    --panel:#1C1F2B;
+    --panel-2:#232736;
+    --paper:#F2EFE9;
+    --signal:#FF7A1A;
+    --amber:#FFC24B;
+    --steel:#8A90A6;
+    --green:#4ADE80;
+    --line:rgba(255,255,255,0.08);
+    --line-strong:rgba(255,255,255,0.16);
+    --display:"Space Grotesk",sans-serif;
+    --body:"Inter",sans-serif;
+    --mono:"Space Mono",monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--ink);
+    color:var(--paper);
+    font-family:var(--body);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:640px;margin:0 auto;padding:0 22px}
+
+  /* ---------- status bar ---------- */
+  .statusbar{
+    border-bottom:1px solid var(--line);
+    background:rgba(20,22,31,0.85);
+    backdrop-filter:blur(8px);
+    position:sticky;top:0;z-index:20;
+  }
+  .statusbar .wrap{
+    display:flex;align-items:center;gap:10px;
+    height:44px;font-family:var(--mono);font-size:11px;
+    letter-spacing:0.04em;color:var(--steel);
+    text-transform:uppercase;
+  }
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--green);
+    box-shadow:0 0 0 0 rgba(74,222,128,0.6);animation:pulse 2.4s infinite}
+  @keyframes pulse{
+    0%{box-shadow:0 0 0 0 rgba(74,222,128,0.5)}
+    70%{box-shadow:0 0 0 7px rgba(74,222,128,0)}
+    100%{box-shadow:0 0 0 0 rgba(74,222,128,0)}
+  }
+  .statusbar .sep{margin-left:auto;color:var(--line-strong)}
+  .statusbar .live{color:var(--green)}
+
+  /* ---------- hero ---------- */
+  .hero{padding:54px 0 30px}
+  .handle{
+    font-family:var(--mono);font-size:13px;color:var(--signal);
+    letter-spacing:0.02em;margin-bottom:22px;display:inline-block;
+  }
+  h1{
+    font-family:var(--display);font-weight:700;
+    font-size:clamp(34px,9vw,52px);line-height:1.02;
+    letter-spacing:-0.02em;margin-bottom:18px;
+  }
+  h1 em{font-style:normal;color:var(--signal)}
+  .sub{color:var(--steel);font-size:17px;max-width:30ch;margin-bottom:30px}
+
+  /* ---------- capture ---------- */
+  .capture{
+    background:var(--panel);border:1px solid var(--line);
+    border-radius:16px;padding:22px;margin-bottom:14px;
+  }
+  .capture .label{
+    font-family:var(--mono);font-size:11px;text-transform:uppercase;
+    letter-spacing:0.08em;color:var(--amber);margin-bottom:8px;display:block;
+  }
+  .capture h2{font-family:var(--display);font-weight:600;font-size:21px;margin-bottom:6px}
+  .capture p{color:var(--steel);font-size:14px;margin-bottom:18px}
+  .field{display:flex;gap:8px;flex-wrap:wrap}
+  input[type=email]{
+    flex:1;min-width:0;background:var(--ink);border:1px solid var(--line-strong);
+    color:var(--paper);font-family:var(--body);font-size:15px;
+    padding:14px 16px;border-radius:11px;outline:none;transition:border-color .15s;
+  }
+  input[type=email]::placeholder{color:#5b6075}
+  input[type=email]:focus{border-color:var(--signal)}
+  button.cta{
+    background:var(--signal);color:#1a0e02;border:none;cursor:pointer;
+    font-family:var(--display);font-weight:600;font-size:15px;
+    padding:14px 22px;border-radius:11px;transition:transform .1s,filter .15s;
+    white-space:nowrap;
+  }
+  button.cta:hover{filter:brightness(1.08)}
+  button.cta:active{transform:translateY(1px)}
+  button.cta:disabled{opacity:.6;cursor:default}
+  .fineprint{font-family:var(--mono);font-size:11px;color:#5b6075;margin-top:12px}
+  .success{
+    display:none;align-items:center;gap:10px;
+    color:var(--green);font-family:var(--mono);font-size:14px;
+  }
+  .success.show{display:flex}
+  .capture.done .field,.capture.done .fineprint{display:none}
+
+  /* ---------- pipeline (signature) ---------- */
+  .pipeline{padding:18px 0 34px}
+  .pipeline .eyebrow{
+    font-family:var(--mono);font-size:11px;text-transform:uppercase;
+    letter-spacing:0.08em;color:var(--steel);margin-bottom:14px;
+  }
+  .rail{
+    display:flex;align-items:stretch;gap:0;
+    border:1px solid var(--line);border-radius:14px;overflow:hidden;
+    background:var(--panel);
+  }
+  .stage{
+    flex:1;padding:16px 10px;text-align:center;position:relative;
+    border-right:1px solid var(--line);
+  }
+  .stage:last-child{border-right:none}
+  .stage .ico{font-size:18px;display:block;margin-bottom:6px}
+  .stage .nm{font-family:var(--mono);font-size:10px;color:var(--steel);
+    text-transform:uppercase;letter-spacing:0.04em}
+  .stage::after{
+    content:"";position:absolute;left:0;bottom:0;height:2px;width:0;
+    background:var(--signal);animation:flow 6s infinite linear;
+  }
+  .stage:nth-child(1)::after{animation-delay:0s}
+  .stage:nth-child(2)::after{animation-delay:1.2s}
+  .stage:nth-child(3)::after{animation-delay:2.4s}
+  .stage:nth-child(4)::after{animation-delay:3.6s}
+  .stage:nth-child(5)::after{animation-delay:4.8s}
+  @keyframes flow{0%{width:0}10%{width:100%}30%{width:100%}40%{width:0}100%{width:0}}
+  .pipeline .note{font-family:var(--mono);font-size:11px;color:#5b6075;margin-top:12px;text-align:center}
+
+  /* ---------- stack / affiliate ---------- */
+  .stack{padding:14px 0 40px}
+  .stack h3{font-family:var(--display);font-weight:600;font-size:22px;margin-bottom:4px}
+  .stack .lead{color:var(--steel);font-size:14px;margin-bottom:20px}
+  .tool{
+    display:flex;align-items:center;gap:14px;
+    background:var(--panel);border:1px solid var(--line);
+    border-radius:13px;padding:15px 16px;margin-bottom:10px;
+    transition:border-color .15s,transform .1s,background .15s;
+  }
+  .tool:hover{border-color:var(--line-strong);background:var(--panel-2)}
+  .tool:active{transform:translateY(1px)}
+  .tool .badge{
+    width:42px;height:42px;border-radius:10px;flex-shrink:0;
+    display:grid;place-items:center;font-size:20px;
+    background:rgba(255,122,26,0.12);border:1px solid rgba(255,122,26,0.25);
+  }
+  .tool .meta{flex:1;min-width:0}
+  .tool .tname{font-family:var(--display);font-weight:600;font-size:16px}
+  .tool .tdesc{color:var(--steel);font-size:13px}
+  .tool .go{font-family:var(--mono);font-size:12px;color:var(--signal);white-space:nowrap}
+  .tool .tag{
+    font-family:var(--mono);font-size:9px;color:var(--amber);
+    border:1px solid rgba(255,194,75,0.3);border-radius:5px;
+    padding:2px 5px;text-transform:uppercase;letter-spacing:0.04em;
+  }
+
+  /* ---------- footer ---------- */
+  footer{border-top:1px solid var(--line);padding:26px 0 46px}
+  .flinks{display:flex;gap:18px;flex-wrap:wrap;font-family:var(--mono);font-size:12px;color:var(--steel)}
+  .flinks a:hover{color:var(--signal)}
+  .sig{font-family:var(--mono);font-size:11px;color:#41465a;margin-top:18px}
+
+  @media (prefers-reduced-motion:reduce){
+    .dot,.stage::after{animation:none}
+    .stage:nth-child(-n+3)::after{width:100%}
+  }
+</style>
+</head>
+<body>
+
+  <div class="statusbar">
+    <div class="wrap">
+      <span class="dot" aria-hidden="true"></span>
+      <span class="live">running</span>
+      <span>pipeline: script › voice › render › post</span>
+      <span class="sep">·</span>
+      <span id="clock">--:--</span>
+    </div>
+  </div>
+
+  <header class="hero">
+    <div class="wrap">
+      <span class="handle">@auto_mate_it</span>
+      <h1>The machine that <em>posts</em> so you don't have to.</h1>
+      <p class="sub">AI tools &amp; automation for founders who'd rather build than grind.</p>
+
+      <div class="capture" id="capture">
+        <span class="label">// the drop</span>
+        <h2>One automation, every week.</h2>
+        <p>The exact AI tools &amp; workflows I'm running — no fluff, no gurus. Straight to your inbox.</p>
+        <div class="field">
+          <input type="email" id="email" placeholder="you@email.com" autocomplete="email" aria-label="Email address" />
+          <button class="cta" id="submit">Get the drop</button>
+        </div>
+        <div class="success" id="success">✓ you're in. first drop lands soon.</div>
+        <p class="fineprint">no spam. unsubscribe anytime.</p>
+      </div>
+    </div>
+  </header>
+
+  <section class="pipeline">
+    <div class="wrap">
+      <div class="eyebrow">// how the page runs itself</div>
+      <div class="rail" role="img" aria-label="Automated content pipeline: script, voice, footage, captions, post">
+        <div class="stage"><span class="ico">✍️</span><span class="nm">script</span></div>
+        <div class="stage"><span class="ico">🎙️</span><span class="nm">voice</span></div>
+        <div class="stage"><span class="ico">🎞️</span><span class="nm">footage</span></div>
+        <div class="stage"><span class="ico">💬</span><span class="nm">captions</span></div>
+        <div class="stage"><span class="ico">🚀</span><span class="nm">post</span></div>
+      </div>
+      <p class="note">built &amp; running on autopilot. you're watching the output.</p>
+    </div>
+  </section>
+
+  <section class="stack">
+    <div class="wrap">
+      <h3>The stack I actually run</h3>
+      <p class="lead">Tools I use to ship daily. Some links pay me a cut — costs you nothing, keeps the drop free.</p>
+
+      <a class="tool" href="#REPLACE_WITH_AFFILIATE_LINK" target="_blank" rel="noopener">
+        <span class="badge">🎙️</span>
+        <span class="meta"><div class="tname">ElevenLabs</div><div class="tdesc">The voice on every video.</div></span>
+        <span class="tag">aff</span><span class="go">open →</span>
+      </a>
+
+      <a class="tool" href="#REPLACE_WITH_AFFILIATE_LINK" target="_blank" rel="noopener">
+        <span class="badge">🧠</span>
+        <span class="meta"><div class="tname">OpenAI</div><div class="tdesc">Scripts &amp; ideas in seconds.</div></span>
+        <span class="tag">aff</span><span class="go">open →</span>
+      </a>
+
+      <a class="tool" href="#REPLACE_WITH_AFFILIATE_LINK" target="_blank" rel="noopener">
+        <span class="badge">⚙️</span>
+        <span class="meta"><div class="tname">Make / n8n</div><div class="tdesc">Wires the whole pipeline together.</div></span>
+        <span class="tag">aff</span><span class="go">open →</span>
+      </a>
+
+      <a class="tool" href="#REPLACE_WITH_AFFILIATE_LINK" target="_blank" rel="noopener">
+        <span class="badge">🎬</span>
+        <span class="meta"><div class="tname">Your video tool</div><div class="tdesc">Swap in the one you recommend.</div></span>
+        <span class="tag">aff</span><span class="go">open →</span>
+      </a>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <div class="flinks">
+        <a href="https://www.tiktok.com/@auto_mate_it" target="_blank" rel="noopener">tiktok ↗</a>
+        <a href="#REPLACE">youtube ↗</a>
+        <a href="#REPLACE">instagram ↗</a>
+        <a href="#capture">join the drop ↗</a>
+      </div>
+      <p class="sig">// auto_mate_it — built by one person + a lot of automation.</p>
+    </div>
+  </footer>
+
+<script>
+  // ---- LIVE CLOCK (the "machine is running" detail) ----
+  function tick(){
+    const d=new Date();
+    const h=String(d.getHours()).padStart(2,'0');
+    const m=String(d.getMinutes()).padStart(2,'0');
+    const s=String(d.getSeconds()).padStart(2,'0');
+    document.getElementById('clock').textContent=`${h}:${m}:${s}`;
+  }
+  tick(); setInterval(tick,1000);
+
+  // ============================================================
+  //  EMAIL CAPTURE — wire this to YOUR backend.
+  //  Easiest options:
+  //   1) Supabase: create a table `subscribers(email text, created_at timestamptz default now())`
+  //      then a tiny edge function / RLS-insert and put its URL below.
+  //   2) Formspree: make a form, paste the endpoint below. Zero backend.
+  //  Leave empty to test the UI (it'll just show success without saving).
+  // ============================================================
+  const SUBSCRIBE_ENDPOINT = ""; // <-- PUT YOUR URL HERE
+
+  const capture=document.getElementById('capture');
+  const emailEl=document.getElementById('email');
+  const btn=document.getElementById('submit');
+  const ok=document.getElementById('success');
+
+  function valid(e){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)}
+
+  async function subscribe(){
+    const email=emailEl.value.trim();
+    if(!valid(email)){emailEl.focus();emailEl.style.borderColor="#FF4D4D";return;}
+    btn.disabled=true;btn.textContent="...";
+    try{
+      if(SUBSCRIBE_ENDPOINT){
+        await fetch(SUBSCRIBE_ENDPOINT,{
+          method:"POST",
+          headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({email})
+        });
+      }else{
+        console.warn("SUBSCRIBE_ENDPOINT not set — email not saved. This is demo mode.");
+      }
+      capture.classList.add('done');
+      ok.classList.add('show');
+    }catch(err){
+      btn.disabled=false;btn.textContent="Try again";
+      console.error(err);
+    }
+  }
+
+  btn.addEventListener('click',subscribe);
+  emailEl.addEventListener('keydown',e=>{if(e.key==='Enter')subscribe()});
+  emailEl.addEventListener('input',()=>{emailEl.style.borderColor=""});
+</script>
+</body>
+</html>
