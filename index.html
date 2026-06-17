@@ -268,22 +268,6 @@
       <p class="sig">// auto_mate_it — built by one person + a lot of automation.</p>
     </div>
   </footer>
-!-- modify this form HTML and place wherever you want your form -->
-<form
-  action="https://formspree.io/f/mykaazez"
-  method="POST"
->
-  <label>
-    Your email:
-    <input type="email" name="email">
-  </label>
-  <label>
-    Your message:
-    <textarea name="message"></textarea>
-  </label>
-  <!-- your other form fields go here -->
-  <button type="submit">Send</button>
-</form>
 <script>
   // ---- LIVE CLOCK (the "machine is running" detail) ----
   function tick(){
@@ -303,7 +287,7 @@
   //   2) Formspree: make a form, paste the endpoint below. Zero backend.
   //  Leave empty to test the UI (it'll just show success without saving).
   // ============================================================
-  const SUBSCRIBE_ENDPOINT = "https://formspree.io/f/mykaazez"; // <-- PUT YOUR URL HERE
+ const SUBSCRIBE_ENDPOINT = "https://formspree.io/f/mykaazez";// <-- PUT YOUR URL HERE
 
   const capture=document.getElementById('capture');
   const emailEl=document.getElementById('email');
@@ -320,7 +304,7 @@
       if(SUBSCRIBE_ENDPOINT){
         await fetch(SUBSCRIBE_ENDPOINT,{
           method:"POST",
-          headers:{"Content-Type":"application/json"},
+          headers:{"Content-Type":"application/json","Accept":"application/json"},
           body:JSON.stringify({email})
         });
       }else{
